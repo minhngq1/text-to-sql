@@ -237,15 +237,16 @@ Mở `http://localhost:5173`.
 | Lint frontend | `npm run lint` (trong `frontend/`) | |
 
 Số liệu đánh giá mới nhất nằm ở `tests/report.json` (và lịch sử các lần chạy ở `tests/reports/`) —
-xem file này để lấy con số hiện hành thay vì số cũ có thể đã lỗi thời. Kịch bản kiểm thử thủ công đầy
-đủ và danh sách hạn chế đã biết nằm ở `tests/KIEM_THU.md`.
+xem file này để lấy con số hiện hành thay vì số cũ có thể đã lỗi thời. Tóm tắt độ chính xác (so với model
+base), thời gian phản hồi và kết quả kiểm duyệt SQL nằm ở `tests/KIEM_THU.md`.
 
 ---
 
 ## 8. Hạn chế đã biết
 
-Xem chi tiết ở `tests/KIEM_THU.md`. Hạn chế lớn nhất hiện tại: vòng self-healing chỉ bắt lỗi
-cú pháp/tên cột, chưa bắt được trường hợp SQL chạy được nhưng trả lời sai ý câu hỏi.
+Hạn chế lớn nhất hiện tại: vòng self-healing chỉ bắt lỗi cú pháp/tên cột, chưa bắt được trường hợp SQL
+chạy được nhưng trả lời sai ý câu hỏi. Xem thống kê độ chính xác chi tiết theo từng mức độ câu hỏi ở
+`tests/KIEM_THU.md`.
 
 ---
 
