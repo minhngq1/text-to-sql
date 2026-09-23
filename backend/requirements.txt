@@ -1,0 +1,9 @@
+# Pinned versions to reproduce the tested environment.
+# Install: pip install -r requirements.txt
+
+fastapi==0.136.3
+uvicorn[standard]==0.48.0
+pydantic==2.12.5
+httpx==0.28.1
+psycopg2-binary==2.9.11
+python-dotenv==1.1.0

@@ -1,0 +1,12 @@
+# Modelfile — đăng ký model fine-tuned vào Ollama
+# Đặt file .gguf (tải từ Kaggle) cùng thư mục với Modelfile này.
+# Mặc định dùng bản Q4_K_M (chất lượng cao). Nếu máy GTX 1650 4GB chậm,
+# đổi dòng FROM sang ./qwen25-xkld-q3_k_m.gguf để fit trọn VRAM.
+
+FROM ./qwen25-xkld-q4_k_m.gguf
+
+PARAMETER num_ctx 4096
+PARAMETER temperature 0.1
+PARAMETER stop "<|im_end|>"
+
+SYSTEM """Bạn là chuyên gia PostgreSQL cho hệ thống quản lý hợp đồng xuất khẩu lao động. Dựa vào schema và câu hỏi tiếng Việt, hãy sinh DUY NHẤT một câu lệnh SQL hợp lệ (chỉ SELECT), không giải thích. Luôn dùng ILIKE khi tìm chuỗi."""

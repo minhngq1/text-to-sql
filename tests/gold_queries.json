@@ -1,0 +1,551 @@
+[
+  {
+    "id": 1,
+    "level": "retrieval",
+    "question": "Liệt kê tất cả công ty phái cử",
+    "sql": "SELECT * FROM companies"
+  },
+  {
+    "id": 2,
+    "level": "retrieval",
+    "question": "Có bao nhiêu lao động trong hệ thống",
+    "sql": "SELECT COUNT(*) FROM workers"
+  },
+  {
+    "id": 3,
+    "level": "retrieval",
+    "question": "Có bao nhiêu cán bộ đang làm việc",
+    "sql": "SELECT COUNT(*) FROM officers"
+  },
+  {
+    "id": 4,
+    "level": "retrieval",
+    "question": "Liệt kê danh sách lao động là nữ",
+    "sql": "SELECT * FROM workers WHERE gender = 'Nữ'"
+  },
+  {
+    "id": 5,
+    "level": "retrieval",
+    "question": "Liệt kê các hợp đồng cung ứng đã được duyệt",
+    "sql": "SELECT * FROM supply_contracts WHERE status = 'APPROVED'"
+  },
+  {
+    "id": 6,
+    "level": "retrieval",
+    "question": "Liệt kê các cán bộ thuộc Phòng Pháp chế",
+    "sql": "SELECT * FROM officers WHERE department ILIKE '%Pháp chế%'"
+  },
+  {
+    "id": 7,
+    "level": "filter",
+    "ordered": true,
+    "question": "5 hợp đồng cung ứng được ký gần đây nhất, trùng ngày ký thì ưu tiên hợp đồng có id lớn hơn",
+    "sql": "SELECT * FROM supply_contracts ORDER BY document_date DESC, id DESC LIMIT 5"
+  },
+  {
+    "id": 8,
+    "level": "filter",
+    "question": "Các đơn tuyển dụng cần trên 100 lao động",
+    "sql": "SELECT * FROM recruitment_orders WHERE total_quantity > 100"
+  },
+  {
+    "id": 9,
+    "level": "filter",
+    "question": "Danh sách lao động đã bị từ chối",
+    "sql": "SELECT * FROM workers WHERE status = 'REJECTED'"
+  },
+  {
+    "id": 10,
+    "level": "filter",
+    "question": "Liệt kê các cán bộ thuộc phòng ban có chữ Quản lý",
+    "sql": "SELECT * FROM officers WHERE department ILIKE '%Quản lý%'"
+  },
+  {
+    "id": 11,
+    "level": "filter",
+    "question": "Các hợp đồng cung ứng còn hiệu lực tính đến hôm nay",
+    "sql": "SELECT * FROM supply_contracts WHERE CURRENT_DATE BETWEEN valid_from AND valid_to"
+  },
+  {
+    "id": 12,
+    "level": "aggregate",
+    "question": "Đếm số hợp đồng cung ứng theo từng trạng thái",
+    "sql": "SELECT status, COUNT(*) AS so_luong FROM supply_contracts GROUP BY status"
+  },
+  {
+    "id": 13,
+    "level": "aggregate",
+    "question": "Đếm số lao động theo giới tính",
+    "sql": "SELECT gender, COUNT(*) AS so_luong FROM workers GROUP BY gender"
+  },
+  {
+    "id": 14,
+    "level": "aggregate",
+    "question": "Đếm số lao động theo từng trạng thái",
+    "sql": "SELECT status, COUNT(*) AS so_luong FROM workers GROUP BY status"
+  },
+  {
+    "id": 15,
+    "level": "aggregate",
+    "question": "Mỗi cán bộ phụ trách bao nhiêu hợp đồng cung ứng",
+    "sql": "SELECT o.full_name, COUNT(*) AS so_hop_dong FROM supply_contracts sc JOIN officers o ON sc.officer_id = o.id GROUP BY o.full_name"
+  },
+  {
+    "id": 16,
+    "level": "aggregate",
+    "question": "Tổng số lao động cần tuyển theo từng quốc gia tiếp nhận",
+    "sql": "SELECT sc.receiving_country, SUM(ro.total_quantity) AS tong_can_tuyen FROM recruitment_orders ro JOIN supply_contracts sc ON ro.contract_id = sc.id GROUP BY sc.receiving_country"
+  },
+  {
+    "id": 17,
+    "level": "join",
+    "question": "Liệt kê số hiệu hợp đồng kèm tên công ty phái cử",
+    "sql": "SELECT sc.document_number, c.company_name FROM supply_contracts sc JOIN companies c ON sc.company_id = c.id"
+  },
+  {
+    "id": 18,
+    "level": "join",
+    "question": "Liệt kê tên đơn tuyển dụng kèm quốc gia tiếp nhận",
+    "sql": "SELECT ro.job_title, sc.receiving_country FROM recruitment_orders ro JOIN supply_contracts sc ON ro.contract_id = sc.id"
+  },
+  {
+    "id": 19,
+    "level": "join",
+    "question": "Liệt kê tên cán bộ và số hiệu các hợp đồng họ phụ trách",
+    "sql": "SELECT o.full_name, sc.document_number FROM officers o JOIN supply_contracts sc ON sc.officer_id = o.id"
+  },
+  {
+    "id": 33,
+    "level": "join",
+    "question": "Liệt kê tên lao động kèm tên công ty phái cử họ thuộc về",
+    "sql": "SELECT w.full_name, c.company_name FROM workers w JOIN recruitment_orders ro ON w.assigned_order_id = ro.id JOIN supply_contracts sc ON ro.contract_id = sc.id JOIN companies c ON sc.company_id = c.id"
+  },
+  {
+    "id": 34,
+    "level": "join",
+    "question": "Liệt kê tên đơn tuyển dụng kèm mã tiền tệ trả lương",
+    "sql": "SELECT ro.job_title, ofn.currency_code FROM recruitment_orders ro JOIN order_financials ofn ON ofn.order_id = ro.id"
+  },
+  {
+    "id": 35,
+    "level": "join",
+    "question": "Liệt kê số hiệu hợp đồng kèm tên cán bộ ra quyết định phê duyệt",
+    "sql": "SELECT sc.document_number, o.full_name FROM contract_approvals ca JOIN supply_contracts sc ON ca.contract_id = sc.id JOIN officers o ON ca.officer_id = o.id"
+  },
+  {
+    "id": 20,
+    "level": "aggregate_join",
+    "question": "Công ty nào có nhiều hơn 1 hợp đồng đã được duyệt",
+    "sql": "SELECT c.company_name FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id WHERE sc.status = 'APPROVED' GROUP BY c.company_name HAVING COUNT(*) > 1"
+  },
+  {
+    "id": 21,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Cán bộ nào phê duyệt nhiều hợp đồng nhất",
+    "sql": "SELECT o.full_name, COUNT(*) AS so_quyet_dinh FROM officers o JOIN contract_approvals ca ON ca.officer_id = o.id GROUP BY o.full_name ORDER BY so_quyet_dinh DESC, o.full_name ASC LIMIT 1"
+  },
+  {
+    "id": 22,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Top 5 ngành nghề có tổng số lao động nữ cần tuyển nhiều nhất, cùng số lượng thì xếp theo tên ngành A-Z",
+    "sql": "SELECT job_industry, SUM(female_quantity) AS tong_nu FROM recruitment_orders GROUP BY job_industry ORDER BY tong_nu DESC, job_industry ASC LIMIT 5"
+  },
+  {
+    "id": 23,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Tính phần trăm lao động nữ trên tổng số của mỗi đơn tuyển dụng, lấy 5 đơn cao nhất, cùng tỉ lệ thì xếp theo tên đơn A-Z",
+    "sql": "SELECT ro.job_title, ROUND(100.0 * ro.female_quantity / NULLIF(ro.total_quantity, 0), 1) AS ty_le_nu FROM recruitment_orders ro ORDER BY ty_le_nu DESC NULLS LAST, ro.job_title ASC LIMIT 5"
+  },
+  {
+    "id": 24,
+    "level": "aggregate_join",
+    "question": "Tuổi trung bình của lao động theo giới tính",
+    "sql": "SELECT gender, ROUND(AVG(DATE_PART('year', AGE(date_of_birth)))::numeric, 1) AS tuoi_trung_binh FROM workers GROUP BY gender"
+  },
+  {
+    "id": 25,
+    "level": "aggregate_join",
+    "question": "Có bao nhiêu lao động đã được phái cử đi mỗi quốc gia tiếp nhận",
+    "sql": "SELECT sc.receiving_country, COUNT(w.id) AS so_lao_dong FROM workers w JOIN recruitment_orders ro ON w.assigned_order_id = ro.id JOIN supply_contracts sc ON ro.contract_id = sc.id WHERE w.status = 'DEPLOYED' GROUP BY sc.receiving_country"
+  },
+  {
+    "id": 26,
+    "level": "subquery",
+    "question": "Những đơn tuyển dụng nào có lương cơ bản (USD) cao hơn mức lương trung bình của tất cả các đơn",
+    "sql": "SELECT ro.job_title, ofn.base_salary_usd FROM order_financials ofn JOIN recruitment_orders ro ON ofn.order_id = ro.id WHERE ofn.base_salary_usd > (SELECT AVG(base_salary_usd) FROM order_financials)"
+  },
+  {
+    "id": 27,
+    "level": "subquery",
+    "ordered": true,
+    "question": "Top 5 đơn tuyển dụng có mức lương cơ bản quy đổi ra tiền Việt cao nhất, cùng mức lương thì xếp theo tên đơn A-Z",
+    "sql": "SELECT ro.job_title, ROUND(ofn.base_salary * cur.exchange_rate_to_vnd) AS luong_vnd FROM order_financials ofn JOIN currencies cur ON ofn.currency_code = cur.code JOIN recruitment_orders ro ON ofn.order_id = ro.id ORDER BY luong_vnd DESC, ro.job_title ASC LIMIT 5"
+  },
+  {
+    "id": 28,
+    "level": "subquery",
+    "question": "Công ty nào chưa có hợp đồng nào được duyệt",
+    "sql": "SELECT c.company_name FROM companies c WHERE NOT EXISTS (SELECT 1 FROM supply_contracts sc WHERE sc.company_id = c.id AND sc.status = 'APPROVED')"
+  },
+  {
+    "id": 29,
+    "level": "subquery",
+    "question": "Đơn tuyển dụng nào chưa tuyển đủ số lao động cần",
+    "sql": "SELECT ro.id, ro.job_title, ro.total_quantity, COUNT(w.id) AS da_tuyen FROM recruitment_orders ro LEFT JOIN workers w ON w.assigned_order_id = ro.id GROUP BY ro.id, ro.job_title, ro.total_quantity HAVING COUNT(w.id) < ro.total_quantity"
+  },
+  {
+    "id": 30,
+    "level": "subquery",
+    "question": "Hợp đồng nào có trạng thái được duyệt nhưng lại tồn tại một quyết định từ chối",
+    "sql": "SELECT DISTINCT sc.document_number FROM supply_contracts sc WHERE sc.status = 'APPROVED' AND EXISTS (SELECT 1 FROM contract_approvals ca WHERE ca.contract_id = sc.id AND ca.decision_type = 'REJECTED')"
+  },
+  {
+    "id": 31,
+    "level": "filter",
+    "question": "Liệt kê các công ty liên quan đến thị trường Nhật Bản",
+    "sql": "SELECT * FROM companies WHERE market_country ILIKE '%Nhật Bản%'"
+  },
+  {
+    "id": 32,
+    "level": "aggregate",
+    "question": "Đếm số công ty theo từng thị trường quốc gia",
+    "sql": "SELECT market_country, COUNT(*) AS so_cong_ty FROM companies GROUP BY market_country"
+  },
+  {
+    "id": 36,
+    "level": "retrieval",
+    "question": "Danh sách toàn bộ cán bộ đang công tác trong hệ thống",
+    "sql": "SELECT * FROM officers"
+  },
+  {
+    "id": 37,
+    "level": "retrieval",
+    "question": "Danh sách các loại tiền tệ hệ thống đang hỗ trợ quy đổi lương",
+    "sql": "SELECT * FROM currencies"
+  },
+  {
+    "id": 38,
+    "level": "retrieval",
+    "question": "Có bao nhiêu công ty phái cử đã đăng ký trong hệ thống",
+    "sql": "SELECT COUNT(*) FROM companies"
+  },
+  {
+    "id": 39,
+    "level": "retrieval",
+    "question": "Có bao nhiêu hợp đồng cung ứng đã được lập",
+    "sql": "SELECT COUNT(*) FROM supply_contracts"
+  },
+  {
+    "id": 40,
+    "level": "retrieval",
+    "question": "Liệt kê toàn bộ các quyết định phê duyệt hợp đồng",
+    "sql": "SELECT * FROM contract_approvals"
+  },
+  {
+    "id": 41,
+    "level": "retrieval",
+    "question": "Có bao nhiêu đơn tuyển dụng đã được tạo trong hệ thống",
+    "sql": "SELECT COUNT(*) FROM recruitment_orders"
+  },
+  {
+    "id": 42,
+    "level": "retrieval",
+    "question": "Liệt kê thông tin tài chính của tất cả đơn tuyển dụng",
+    "sql": "SELECT * FROM order_financials"
+  },
+  {
+    "id": 43,
+    "level": "retrieval",
+    "question": "Danh sách toàn bộ lao động trong hệ thống kèm ngày sinh và quê quán",
+    "sql": "SELECT full_name, date_of_birth, hometown FROM workers"
+  },
+  {
+    "id": 44,
+    "level": "retrieval",
+    "question": "Danh sách các đơn tuyển dụng kèm ngành nghề và tổng số lượng cần tuyển",
+    "sql": "SELECT job_title, job_industry, total_quantity FROM recruitment_orders"
+  },
+  {
+    "id": 45,
+    "level": "filter",
+    "question": "Liệt kê các công ty phái cử có địa chỉ website liên hệ",
+    "sql": "SELECT * FROM companies WHERE website IS NOT NULL"
+  },
+  {
+    "id": 46,
+    "level": "filter",
+    "question": "Liệt kê các đơn tuyển dụng cần tuyển từ 20 đến 50 lao động",
+    "sql": "SELECT * FROM recruitment_orders WHERE total_quantity BETWEEN 20 AND 50"
+  },
+  {
+    "id": 47,
+    "level": "filter",
+    "question": "Danh sách lao động sinh sau ngày 31/12/1998",
+    "sql": "SELECT * FROM workers WHERE date_of_birth > '1998-12-31'"
+  },
+  {
+    "id": 48,
+    "level": "filter",
+    "question": "Những hồ sơ hợp đồng nào đã bị bác trong quá trình xét duyệt",
+    "sql": "SELECT * FROM contract_approvals WHERE decision_type = 'REJECTED'"
+  },
+  {
+    "id": 49,
+    "level": "filter",
+    "question": "Các đơn tuyển dụng chỉ yêu cầu lao động nam",
+    "sql": "SELECT * FROM recruitment_orders WHERE gender_requirement = 'Nam'"
+  },
+  {
+    "id": 50,
+    "level": "filter",
+    "question": "Liệt kê các cán bộ giữ chức vụ Trưởng phòng",
+    "sql": "SELECT * FROM officers WHERE position ILIKE '%Trưởng phòng%'"
+  },
+  {
+    "id": 51,
+    "level": "filter",
+    "question": "Các hợp đồng cung ứng được ký trong năm 2024",
+    "sql": "SELECT * FROM supply_contracts WHERE document_date BETWEEN '2024-01-01' AND '2024-12-31'"
+  },
+  {
+    "id": 52,
+    "level": "filter",
+    "question": "Danh sách lao động quê ở Nghệ An",
+    "sql": "SELECT * FROM workers WHERE hometown = 'Nghệ An'"
+  },
+  {
+    "id": 53,
+    "level": "filter",
+    "question": "Các đơn có mức lương cơ bản quy đổi USD trên 1500",
+    "sql": "SELECT * FROM order_financials WHERE base_salary_usd > 1500"
+  },
+  {
+    "id": 54,
+    "level": "aggregate",
+    "question": "Đếm số cán bộ theo từng phòng ban",
+    "sql": "SELECT department, COUNT(*) AS so_luong FROM officers GROUP BY department"
+  },
+  {
+    "id": 55,
+    "level": "aggregate",
+    "question": "Tổng số lượng lao động cần tuyển theo từng ngành nghề",
+    "sql": "SELECT job_industry, SUM(total_quantity) AS tong_can_tuyen FROM recruitment_orders GROUP BY job_industry"
+  },
+  {
+    "id": 56,
+    "level": "aggregate",
+    "question": "Đếm số quyết định phê duyệt theo từng loại quyết định",
+    "sql": "SELECT decision_type, COUNT(*) AS so_luong FROM contract_approvals GROUP BY decision_type"
+  },
+  {
+    "id": 57,
+    "level": "aggregate",
+    "question": "Lương cơ bản trung bình theo từng loại tiền tệ",
+    "sql": "SELECT currency_code, ROUND(AVG(base_salary), 1) AS luong_tb FROM order_financials GROUP BY currency_code"
+  },
+  {
+    "id": 58,
+    "level": "aggregate",
+    "question": "Đếm số đơn tuyển dụng theo yêu cầu giới tính",
+    "sql": "SELECT gender_requirement, COUNT(*) AS so_luong FROM recruitment_orders GROUP BY gender_requirement"
+  },
+  {
+    "id": 59,
+    "level": "aggregate",
+    "question": "Đếm số hợp đồng cung ứng theo từng quốc gia tiếp nhận",
+    "sql": "SELECT receiving_country, COUNT(*) AS so_luong FROM supply_contracts GROUP BY receiving_country"
+  },
+  {
+    "id": 60,
+    "level": "aggregate",
+    "question": "Số lượng lao động có tay nghề cần tuyển trung bình theo từng ngành nghề",
+    "sql": "SELECT job_industry, ROUND(AVG(skilled_quantity), 1) AS tb_ky_nang FROM recruitment_orders GROUP BY job_industry"
+  },
+  {
+    "id": 61,
+    "level": "aggregate",
+    "question": "Đếm số công ty phái cử theo từng loại hình thị trường-ngành (category)",
+    "sql": "SELECT category, COUNT(*) AS so_luong FROM companies GROUP BY category"
+  },
+  {
+    "id": 62,
+    "level": "aggregate",
+    "question": "Tổng lệ phí đào tạo lao động phải đóng theo từng loại tiền tệ",
+    "sql": "SELECT currency_code, SUM(worker_training_fee) AS tong_le_phi FROM order_financials GROUP BY currency_code"
+  },
+  {
+    "id": 63,
+    "level": "join",
+    "question": "Liệt kê tên công ty kèm quốc gia thị trường và số hiệu hợp đồng họ đã ký",
+    "sql": "SELECT c.company_name, c.market_country, sc.document_number FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id"
+  },
+  {
+    "id": 64,
+    "level": "join",
+    "question": "Liệt kê tên lao động kèm ngành nghề của đơn tuyển dụng họ được phân công",
+    "sql": "SELECT w.full_name, ro.job_industry FROM workers w JOIN recruitment_orders ro ON w.assigned_order_id = ro.id"
+  },
+  {
+    "id": 65,
+    "level": "join",
+    "question": "Liệt kê số hiệu hợp đồng kèm tên cán bộ phụ trách và phòng ban của họ",
+    "sql": "SELECT sc.document_number, o.full_name, o.department FROM supply_contracts sc JOIN officers o ON sc.officer_id = o.id"
+  },
+  {
+    "id": 66,
+    "level": "join",
+    "question": "Liệt kê tên đơn tuyển dụng kèm mức lương cơ bản và tên loại tiền tệ chi trả",
+    "sql": "SELECT ro.job_title, ofn.base_salary, cur.name FROM recruitment_orders ro JOIN order_financials ofn ON ofn.order_id = ro.id JOIN currencies cur ON ofn.currency_code = cur.code"
+  },
+  {
+    "id": 67,
+    "level": "join",
+    "question": "Liệt kê số hiệu hợp đồng kèm loại quyết định và ngày ra quyết định phê duyệt",
+    "sql": "SELECT sc.document_number, ca.decision_type, ca.decision_date FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id"
+  },
+  {
+    "id": 68,
+    "level": "join",
+    "question": "Liệt kê tên công ty kèm tên các đơn tuyển dụng thuộc hợp đồng của công ty đó",
+    "sql": "SELECT c.company_name, ro.job_title FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id JOIN recruitment_orders ro ON ro.contract_id = sc.id"
+  },
+  {
+    "id": 69,
+    "level": "join",
+    "question": "Liệt kê tên lao động kèm quốc gia tiếp nhận nơi họ được phái cử",
+    "sql": "SELECT w.full_name, sc.receiving_country FROM workers w JOIN recruitment_orders ro ON w.assigned_order_id = ro.id JOIN supply_contracts sc ON ro.contract_id = sc.id"
+  },
+  {
+    "id": 70,
+    "level": "join",
+    "question": "Liệt kê tên cán bộ kèm số hiệu hợp đồng và tên công ty trong các quyết định họ phê duyệt",
+    "sql": "SELECT o.full_name, sc.document_number, c.company_name FROM contract_approvals ca JOIN officers o ON ca.officer_id = o.id JOIN supply_contracts sc ON ca.contract_id = sc.id JOIN companies c ON sc.company_id = c.id"
+  },
+  {
+    "id": 71,
+    "level": "join",
+    "question": "Liệt kê tên đơn tuyển dụng kèm tên công ty phái cử phụ trách",
+    "sql": "SELECT ro.job_title, c.company_name FROM recruitment_orders ro JOIN supply_contracts sc ON ro.contract_id = sc.id JOIN companies c ON sc.company_id = c.id"
+  },
+  {
+    "id": 72,
+    "level": "aggregate_join",
+    "question": "Mỗi công ty có bao nhiêu đơn tuyển dụng thuộc các hợp đồng của mình",
+    "sql": "SELECT c.company_name, COUNT(ro.id) AS so_don FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id JOIN recruitment_orders ro ON ro.contract_id = sc.id GROUP BY c.company_name"
+  },
+  {
+    "id": 73,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Top 5 công ty có nhiều lao động đã phái cử (trạng thái DEPLOYED) nhất, cùng số lượng thì xếp theo tên công ty A-Z",
+    "sql": "SELECT c.company_name, COUNT(w.id) AS so_lao_dong FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id JOIN recruitment_orders ro ON ro.contract_id = sc.id JOIN workers w ON w.assigned_order_id = ro.id WHERE w.status = 'DEPLOYED' GROUP BY c.company_name ORDER BY so_lao_dong DESC, c.company_name ASC LIMIT 5"
+  },
+  {
+    "id": 74,
+    "level": "aggregate_join",
+    "question": "Mỗi phòng ban có bao nhiêu quyết định phê duyệt được thông qua (APPROVED)",
+    "sql": "SELECT o.department, COUNT(*) AS so_luong FROM contract_approvals ca JOIN officers o ON ca.officer_id = o.id WHERE ca.decision_type = 'APPROVED' GROUP BY o.department"
+  },
+  {
+    "id": 75,
+    "level": "aggregate_join",
+    "question": "Tổng lương cơ bản quy đổi USD theo từng quốc gia tiếp nhận",
+    "sql": "SELECT sc.receiving_country, SUM(ofn.base_salary_usd) AS tong_luong_usd FROM supply_contracts sc JOIN recruitment_orders ro ON ro.contract_id = sc.id JOIN order_financials ofn ON ofn.order_id = ro.id GROUP BY sc.receiving_country"
+  },
+  {
+    "id": 76,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Cán bộ nào phụ trách nhiều đơn tuyển dụng nhất, cùng số lượng thì xếp theo tên cán bộ A-Z",
+    "sql": "SELECT o.full_name, COUNT(ro.id) AS so_don FROM officers o JOIN supply_contracts sc ON sc.officer_id = o.id JOIN recruitment_orders ro ON ro.contract_id = sc.id GROUP BY o.full_name ORDER BY so_don DESC, o.full_name ASC LIMIT 1"
+  },
+  {
+    "id": 77,
+    "level": "aggregate_join",
+    "question": "Mỗi ngành nghề có bao nhiêu lao động đã được phân công thực tế",
+    "sql": "SELECT ro.job_industry, COUNT(w.id) AS so_lao_dong FROM recruitment_orders ro JOIN workers w ON w.assigned_order_id = ro.id GROUP BY ro.job_industry"
+  },
+  {
+    "id": 78,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Quốc gia tiếp nhận nào có nhiều hợp đồng bị từ chối phê duyệt nhất, cùng số lượng thì xếp theo tên quốc gia A-Z",
+    "sql": "SELECT sc.receiving_country, COUNT(*) AS so_luong FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id WHERE ca.decision_type = 'REJECTED' GROUP BY sc.receiving_country ORDER BY so_luong DESC, sc.receiving_country ASC LIMIT 1"
+  },
+  {
+    "id": 79,
+    "level": "aggregate_join",
+    "ordered": true,
+    "question": "Công ty nào có tổng số lao động nữ cần tuyển nhiều nhất trong các đơn tuyển dụng của mình, cùng tổng số thì xếp theo tên công ty A-Z",
+    "sql": "SELECT c.company_name, SUM(ro.female_quantity) AS tong_nu FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id JOIN recruitment_orders ro ON ro.contract_id = sc.id GROUP BY c.company_name ORDER BY tong_nu DESC, c.company_name ASC LIMIT 1"
+  },
+  {
+    "id": 80,
+    "level": "aggregate_join",
+    "question": "Mỗi loại tiền tệ được dùng chi trả lương cho bao nhiêu đơn tuyển dụng",
+    "sql": "SELECT cur.name, COUNT(*) AS so_don FROM currencies cur JOIN order_financials ofn ON ofn.currency_code = cur.code GROUP BY cur.name"
+  },
+  {
+    "id": 81,
+    "level": "subquery",
+    "question": "Cán bộ nào chưa từng ra quyết định từ chối phê duyệt hợp đồng nào",
+    "sql": "SELECT o.full_name FROM officers o WHERE NOT EXISTS (SELECT 1 FROM contract_approvals ca WHERE ca.officer_id = o.id AND ca.decision_type = 'REJECTED')"
+  },
+  {
+    "id": 82,
+    "level": "subquery",
+    "question": "Đơn tuyển dụng nào có lương cơ bản USD thấp hơn mức lương trung bình của tất cả các đơn",
+    "sql": "SELECT ro.job_title, ofn.base_salary_usd FROM recruitment_orders ro JOIN order_financials ofn ON ofn.order_id = ro.id WHERE ofn.base_salary_usd < (SELECT AVG(base_salary_usd) FROM order_financials)"
+  },
+  {
+    "id": 83,
+    "level": "subquery",
+    "question": "Đơn tuyển dụng nào chưa từng có lao động nào bị từ chối (trạng thái REJECTED)",
+    "sql": "SELECT ro.job_title FROM recruitment_orders ro WHERE NOT EXISTS (SELECT 1 FROM workers w WHERE w.assigned_order_id = ro.id AND w.status = 'REJECTED')"
+  },
+  {
+    "id": 84,
+    "level": "subquery",
+    "question": "Loại tiền tệ nào chưa từng được dùng để trả lương cho đơn tuyển dụng nào",
+    "sql": "SELECT cur.code, cur.name FROM currencies cur WHERE cur.code NOT IN (SELECT currency_code FROM order_financials WHERE currency_code IS NOT NULL)"
+  },
+  {
+    "id": 85,
+    "level": "subquery",
+    "question": "Công ty nào có ít nhất một hợp đồng đã được duyệt",
+    "sql": "SELECT c.company_name FROM companies c WHERE EXISTS (SELECT 1 FROM supply_contracts sc WHERE sc.company_id = c.id AND sc.status = 'APPROVED')"
+  },
+  {
+    "id": 86,
+    "level": "subquery",
+    "question": "Cán bộ nào có số quyết định phê duyệt nhiều hơn số quyết định trung bình của tất cả cán bộ",
+    "sql": "SELECT o.full_name FROM officers o WHERE (SELECT COUNT(*) FROM contract_approvals ca WHERE ca.officer_id = o.id) > (SELECT AVG(cnt) FROM (SELECT COUNT(*) AS cnt FROM contract_approvals GROUP BY officer_id) t)"
+  },
+  {
+    "id": 87,
+    "level": "subquery",
+    "question": "Đơn tuyển dụng nào có tổng chi phí lao động phải đóng cao hơn mức trung bình của tất cả các đơn",
+    "sql": "SELECT ro.job_title, ofn.total_worker_cost FROM recruitment_orders ro JOIN order_financials ofn ON ofn.order_id = ro.id WHERE ofn.total_worker_cost > (SELECT AVG(total_worker_cost) FROM order_financials)"
+  },
+  {
+    "id": 88,
+    "level": "subquery",
+    "question": "Quốc gia tiếp nhận nào chưa từng có quyết định phê duyệt bị từ chối",
+    "sql": "SELECT DISTINCT sc.receiving_country FROM supply_contracts sc WHERE NOT EXISTS (SELECT 1 FROM contract_approvals ca WHERE ca.contract_id = sc.id AND ca.decision_type = 'REJECTED')"
+  },
+  {
+    "id": 89,
+    "level": "subquery",
+    "question": "Hợp đồng cung ứng nào có ít nhất một đơn tuyển dụng yêu cầu tuyển cả nam và nữ",
+    "sql": "SELECT sc.document_number FROM supply_contracts sc WHERE EXISTS (SELECT 1 FROM recruitment_orders ro WHERE ro.contract_id = sc.id AND ro.gender_requirement = 'Nam và nữ')"
+  },
+  {
+    "id": 90,
+    "level": "subquery",
+    "question": "Lao động nào có ngày sinh sớm hơn ngày sinh trung bình của toàn bộ lao động",
+    "sql": "SELECT full_name, date_of_birth FROM workers WHERE date_of_birth < (SELECT to_timestamp(AVG(EXTRACT(EPOCH FROM date_of_birth)))::date FROM workers)"
+  }
+]

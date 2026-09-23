@@ -1,0 +1,20 @@
+# Credentials
+backend/.env
+apikey.txt
+*.key
+
+# Model files (quá lớn, không nhạy cảm nhưng không nên lên git)
+*.gguf
+*.bin
+
+*.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node
+frontend/node_modules/
+frontend/dist/

@@ -1,0 +1,19 @@
+{
+  "run_at": "2026-08-16T20:18:37",
+  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+  "temperature": 0.1,
+  "passed": 2,
+  "total": 2,
+  "accuracy": 100.0,
+  "avg_attempts": 1.0,
+  "latency_p50_s": 48.0,
+  "latency_p95_s": 48.0,
+  "by_level": {
+    "retrieval": {
+      "passed": 2,
+      "total": 2,
+      "accuracy": 100.0
+    }
+  },
+  "failures": []
+}

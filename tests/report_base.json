@@ -1,0 +1,285 @@
+{
+  "run_at": "2026-08-16T21:18:13",
+  "model": "qwen2.5-coder:7b-instruct-q4_K_M",
+  "temperature": 0.1,
+  "passed": 60,
+  "total": 90,
+  "accuracy": 66.7,
+  "avg_attempts": 1.04,
+  "latency_p50_s": 32.9,
+  "latency_p95_s": 57.9,
+  "by_level": {
+    "retrieval": {
+      "passed": 10,
+      "total": 15,
+      "accuracy": 66.7
+    },
+    "filter": {
+      "passed": 12,
+      "total": 15,
+      "accuracy": 80.0
+    },
+    "aggregate": {
+      "passed": 14,
+      "total": 15,
+      "accuracy": 93.3
+    },
+    "join": {
+      "passed": 10,
+      "total": 15,
+      "accuracy": 66.7
+    },
+    "aggregate_join": {
+      "passed": 8,
+      "total": 15,
+      "accuracy": 53.3
+    },
+    "subquery": {
+      "passed": 6,
+      "total": 15,
+      "accuracy": 40.0
+    }
+  },
+  "failures": [
+    {
+      "id": 18,
+      "level": "join",
+      "question": "Liệt kê tên đơn tuyển dụng kèm quốc gia tiếp nhận",
+      "gold_sql": "SELECT ro.job_title, sc.receiving_country FROM recruitment_orders ro JOIN supply_contracts sc ON ro.contract_id = sc.id",
+      "model_sql": null,
+      "reason": "Không tạo được câu truy vấn hợp lệ sau 3 lần thử. Thử diễn đạt lại câu hỏi cụ thể hơn."
+    },
+    {
+      "id": 19,
+      "level": "join",
+      "question": "Liệt kê tên cán bộ và số hiệu các hợp đồng họ phụ trách",
+      "gold_sql": "SELECT o.full_name, sc.document_number FROM officers o JOIN supply_contracts sc ON sc.officer_id = o.id",
+      "model_sql": "SELECT o.full_name, COUNT(sc.id) AS contract_count FROM officers o JOIN supply_contracts sc ON o.id = sc.officer_id GROUP BY o.id\nLIMIT 500",
+      "reason": "số dòng khác: model 10 vs đáp án 40"
+    },
+    {
+      "id": 23,
+      "level": "aggregate_join",
+      "question": "Tính phần trăm lao động nữ trên tổng số của mỗi đơn tuyển dụng, lấy 5 đơn cao nhất, cùng tỉ lệ thì xếp theo tên đơn A-Z",
+      "gold_sql": "SELECT ro.job_title, ROUND(100.0 * ro.female_quantity / NULLIF(ro.total_quantity, 0), 1) AS ty_le_nu FROM recruitment_orders ro ORDER BY ty_le_nu DESC NULLS LAST, ro.job_title ASC LIMIT 5",
+      "model_sql": "SELECT ro.job_title, ROUND(100.0 * female_quantity / total_quantity, 2) AS ty_le_nu, ro.job_title FROM recruitment_orders ro ORDER BY ty_le_nu DESC, ro.job_title ASC LIMIT 5",
+      "reason": "số cột khác: model 3 vs đáp án 2"
+    },
+    {
+      "id": 25,
+      "level": "aggregate_join",
+      "question": "Có bao nhiêu lao động đã được phái cử đi mỗi quốc gia tiếp nhận",
+      "gold_sql": "SELECT sc.receiving_country, COUNT(w.id) AS so_lao_dong FROM workers w JOIN recruitment_orders ro ON w.assigned_order_id = ro.id JOIN supply_contracts sc ON ro.contract_id = sc.id WHERE w.status = 'DEPLOYED' GROUP BY sc.receiving_country",
+      "model_sql": null,
+      "reason": "Không tạo được câu truy vấn hợp lệ sau 3 lần thử. Thử diễn đạt lại câu hỏi cụ thể hơn."
+    },
+    {
+      "id": 29,
+      "level": "subquery",
+      "question": "Đơn tuyển dụng nào chưa tuyển đủ số lao động cần",
+      "gold_sql": "SELECT ro.id, ro.job_title, ro.total_quantity, COUNT(w.id) AS da_tuyen FROM recruitment_orders ro LEFT JOIN workers w ON w.assigned_order_id = ro.id GROUP BY ro.id, ro.job_title, ro.total_quantity HAVING COUNT(w.id) < ro.total_quantity",
+      "model_sql": "SELECT * FROM recruitment_orders WHERE total_quantity > female_quantity\nLIMIT 500",
+      "reason": "số dòng khác: model 36 vs đáp án 40"
+    },
+    {
+      "id": 30,
+      "level": "subquery",
+      "question": "Hợp đồng nào có trạng thái được duyệt nhưng lại tồn tại một quyết định từ chối",
+      "gold_sql": "SELECT DISTINCT sc.document_number FROM supply_contracts sc WHERE sc.status = 'APPROVED' AND EXISTS (SELECT 1 FROM contract_approvals ca WHERE ca.contract_id = sc.id AND ca.decision_type = 'REJECTED')",
+      "model_sql": "SELECT sc.document_number FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id WHERE sc.status = 'APPROVED' AND EXISTS (SELECT 1 FROM contract_approvals ca2 WHERE ca2.contract_id = sc.id AND ca2.decision_type = 'REJECTED')\nLIMIT 500",
+      "reason": "số dòng khác: model 14 vs đáp án 7"
+    },
+    {
+      "id": 36,
+      "level": "retrieval",
+      "question": "Danh sách toàn bộ cán bộ đang công tác trong hệ thống",
+      "gold_sql": "SELECT * FROM officers",
+      "model_sql": null,
+      "reason": "Không tạo được câu truy vấn hợp lệ sau 3 lần thử. Thử diễn đạt lại câu hỏi cụ thể hơn."
+    },
+    {
+      "id": 37,
+      "level": "retrieval",
+      "question": "Danh sách các loại tiền tệ hệ thống đang hỗ trợ quy đổi lương",
+      "gold_sql": "SELECT * FROM currencies",
+      "model_sql": "SELECT code, name FROM currencies\nLIMIT 500",
+      "reason": "số cột khác: model 2 vs đáp án 4"
+    },
+    {
+      "id": 38,
+      "level": "retrieval",
+      "question": "Có bao nhiêu công ty phái cử đã đăng ký trong hệ thống",
+      "gold_sql": "SELECT COUNT(*) FROM companies",
+      "model_sql": "SELECT COUNT(*) FROM companies WHERE category = 'Công ty phái cử'\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 39,
+      "level": "retrieval",
+      "question": "Có bao nhiêu hợp đồng cung ứng đã được lập",
+      "gold_sql": "SELECT COUNT(*) FROM supply_contracts",
+      "model_sql": "SELECT COUNT(*) FROM supply_contracts WHERE status = 'APPROVED'\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 44,
+      "level": "retrieval",
+      "question": "Danh sách các đơn tuyển dụng kèm ngành nghề và tổng số lượng cần tuyển",
+      "gold_sql": "SELECT job_title, job_industry, total_quantity FROM recruitment_orders",
+      "model_sql": "SELECT job_industry, SUM(total_quantity) AS tong_so_luong FROM recruitment_orders GROUP BY job_industry\nLIMIT 500",
+      "reason": "số cột khác: model 2 vs đáp án 3"
+    },
+    {
+      "id": 45,
+      "level": "filter",
+      "question": "Liệt kê các công ty phái cử có địa chỉ website liên hệ",
+      "gold_sql": "SELECT * FROM companies WHERE website IS NOT NULL",
+      "model_sql": "SELECT company_name, website FROM companies WHERE website IS NOT NULL\nLIMIT 500",
+      "reason": "số cột khác: model 2 vs đáp án 13"
+    },
+    {
+      "id": 50,
+      "level": "filter",
+      "question": "Liệt kê các cán bộ giữ chức vụ Trưởng phòng",
+      "gold_sql": "SELECT * FROM officers WHERE position ILIKE '%Trưởng phòng%'",
+      "model_sql": "SELECT * FROM officers WHERE position = 'Trưởng phòng'\nLIMIT 500",
+      "reason": "số dòng khác: model 0 vs đáp án 2"
+    },
+    {
+      "id": 53,
+      "level": "filter",
+      "question": "Các đơn có mức lương cơ bản quy đổi USD trên 1500",
+      "gold_sql": "SELECT * FROM order_financials WHERE base_salary_usd > 1500",
+      "model_sql": "SELECT ro.job_title, ofn.base_salary_usd FROM order_financials ofn JOIN recruitment_orders ro ON ofn.order_id = ro.id WHERE ofn.base_salary_usd > 1500\nLIMIT 500",
+      "reason": "số cột khác: model 2 vs đáp án 14"
+    },
+    {
+      "id": 57,
+      "level": "aggregate",
+      "question": "Lương cơ bản trung bình theo từng loại tiền tệ",
+      "gold_sql": "SELECT currency_code, ROUND(AVG(base_salary), 1) AS luong_tb FROM order_financials GROUP BY currency_code",
+      "model_sql": "SELECT AVG(base_salary), currency_code FROM order_financials GROUP BY currency_code\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 63,
+      "level": "join",
+      "question": "Liệt kê tên công ty kèm quốc gia thị trường và số hiệu hợp đồng họ đã ký",
+      "gold_sql": "SELECT c.company_name, c.market_country, sc.document_number FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id",
+      "model_sql": "SELECT c.company_name, c.market_country, COUNT(sc.id) AS so_hop_dong FROM companies c JOIN supply_contracts sc ON c.id = sc.company_id GROUP BY c.company_name, c.market_country\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 67,
+      "level": "join",
+      "question": "Liệt kê số hiệu hợp đồng kèm loại quyết định và ngày ra quyết định phê duyệt",
+      "gold_sql": "SELECT sc.document_number, ca.decision_type, ca.decision_date FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id",
+      "model_sql": "SELECT sc.document_number, ca.decision_type, ca.decision_date FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id WHERE ca.decision_type = 'APPROVED'\nLIMIT 500",
+      "reason": "số dòng khác: model 26 vs đáp án 47"
+    },
+    {
+      "id": 70,
+      "level": "join",
+      "question": "Liệt kê tên cán bộ kèm số hiệu hợp đồng và tên công ty trong các quyết định họ phê duyệt",
+      "gold_sql": "SELECT o.full_name, sc.document_number, c.company_name FROM contract_approvals ca JOIN officers o ON ca.officer_id = o.id JOIN supply_contracts sc ON ca.contract_id = sc.id JOIN companies c ON sc.company_id = c.id",
+      "model_sql": "SELECT o.full_name, COUNT(ca.id) AS so_hop_dong, c.company_name FROM officers o JOIN contract_approvals ca ON o.id = ca.officer_id JOIN supply_contracts sc ON ca.contract_id = sc.id JOIN companies c ON sc.company_id = c.id GROUP BY o.full_name, c.company_name\nLIMIT 500",
+      "reason": "số dòng khác: model 45 vs đáp án 47"
+    },
+    {
+      "id": 76,
+      "level": "aggregate_join",
+      "question": "Cán bộ nào phụ trách nhiều đơn tuyển dụng nhất, cùng số lượng thì xếp theo tên cán bộ A-Z",
+      "gold_sql": "SELECT o.full_name, COUNT(ro.id) AS so_don FROM officers o JOIN supply_contracts sc ON sc.officer_id = o.id JOIN recruitment_orders ro ON ro.contract_id = sc.id GROUP BY o.full_name ORDER BY so_don DESC, o.full_name ASC LIMIT 1",
+      "model_sql": null,
+      "reason": "Không tạo được câu truy vấn hợp lệ sau 3 lần thử. Thử diễn đạt lại câu hỏi cụ thể hơn."
+    },
+    {
+      "id": 77,
+      "level": "aggregate_join",
+      "question": "Mỗi ngành nghề có bao nhiêu lao động đã được phân công thực tế",
+      "gold_sql": "SELECT ro.job_industry, COUNT(w.id) AS so_lao_dong FROM recruitment_orders ro JOIN workers w ON w.assigned_order_id = ro.id GROUP BY ro.job_industry",
+      "model_sql": "SELECT ro.job_title, COUNT(w.id) AS so_lao_dong FROM recruitment_orders ro LEFT JOIN workers w ON w.assigned_order_id = ro.id WHERE w.status = 'DEPLOYED' GROUP BY ro.job_title\nLIMIT 500",
+      "reason": "số dòng khác: model 22 vs đáp án 40"
+    },
+    {
+      "id": 78,
+      "level": "aggregate_join",
+      "question": "Quốc gia tiếp nhận nào có nhiều hợp đồng bị từ chối phê duyệt nhất, cùng số lượng thì xếp theo tên quốc gia A-Z",
+      "gold_sql": "SELECT sc.receiving_country, COUNT(*) AS so_luong FROM supply_contracts sc JOIN contract_approvals ca ON ca.contract_id = sc.id WHERE ca.decision_type = 'REJECTED' GROUP BY sc.receiving_country ORDER BY so_luong DESC, sc.receiving_country ASC LIMIT 1",
+      "model_sql": "SELECT receiving_country, COUNT(*) AS rejected_count FROM supply_contracts WHERE status = 'REJECTED' GROUP BY receiving_country ORDER BY rejected_count DESC, receiving_country ASC\nLIMIT 500",
+      "reason": "số dòng khác: model 7 vs đáp án 1"
+    },
+    {
+      "id": 79,
+      "level": "aggregate_join",
+      "question": "Công ty nào có tổng số lao động nữ cần tuyển nhiều nhất trong các đơn tuyển dụng của mình, cùng tổng số thì xếp theo tên công ty A-Z",
+      "gold_sql": "SELECT c.company_name, SUM(ro.female_quantity) AS tong_nu FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id JOIN recruitment_orders ro ON ro.contract_id = sc.id GROUP BY c.company_name ORDER BY tong_nu DESC, c.company_name ASC LIMIT 1",
+      "model_sql": "SELECT c.company_name, SUM(r.female_quantity) AS total_female FROM companies c JOIN supply_contracts sc ON c.id = sc.company_id JOIN recruitment_orders r ON sc.id = r.contract_id WHERE r.gender_requirement = 'Nam và nữ' GROUP BY c.company_name ORDER BY total_female DESC, c.company_name ASC\nLIMIT 500",
+      "reason": "số dòng khác: model 31 vs đáp án 1"
+    },
+    {
+      "id": 80,
+      "level": "aggregate_join",
+      "question": "Mỗi loại tiền tệ được dùng chi trả lương cho bao nhiêu đơn tuyển dụng",
+      "gold_sql": "SELECT cur.name, COUNT(*) AS so_don FROM currencies cur JOIN order_financials ofn ON ofn.currency_code = cur.code GROUP BY cur.name",
+      "model_sql": "SELECT currency_code, COUNT(order_id) AS so_don_tuyen_dung FROM order_financials GROUP BY currency_code\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 83,
+      "level": "subquery",
+      "question": "Đơn tuyển dụng nào chưa từng có lao động nào bị từ chối (trạng thái REJECTED)",
+      "gold_sql": "SELECT ro.job_title FROM recruitment_orders ro WHERE NOT EXISTS (SELECT 1 FROM workers w WHERE w.assigned_order_id = ro.id AND w.status = 'REJECTED')",
+      "model_sql": "SELECT ro.id, ro.job_title FROM recruitment_orders ro WHERE ro.id NOT IN (SELECT w.assigned_order_id FROM workers w JOIN contract_approvals ca ON w.status = 'REJECTED' AND ca.decision_type = 'REJECTED' AND w.assigned_order_id = ca.contract_id)\nLIMIT 500",
+      "reason": "số dòng khác: model 31 vs đáp án 14"
+    },
+    {
+      "id": 84,
+      "level": "subquery",
+      "question": "Loại tiền tệ nào chưa từng được dùng để trả lương cho đơn tuyển dụng nào",
+      "gold_sql": "SELECT cur.code, cur.name FROM currencies cur WHERE cur.code NOT IN (SELECT currency_code FROM order_financials WHERE currency_code IS NOT NULL)",
+      "model_sql": "SELECT code FROM currencies WHERE code NOT IN (SELECT currency_code FROM order_financials)\nLIMIT 500",
+      "reason": "số cột khác: model 1 vs đáp án 2"
+    },
+    {
+      "id": 85,
+      "level": "subquery",
+      "question": "Công ty nào có ít nhất một hợp đồng đã được duyệt",
+      "gold_sql": "SELECT c.company_name FROM companies c WHERE EXISTS (SELECT 1 FROM supply_contracts sc WHERE sc.company_id = c.id AND sc.status = 'APPROVED')",
+      "model_sql": "SELECT c.company_name FROM companies c JOIN supply_contracts sc ON sc.company_id = c.id WHERE sc.status = 'APPROVED' GROUP BY c.company_name\nLIMIT 500",
+      "reason": "số dòng khác: model 25 vs đáp án 26"
+    },
+    {
+      "id": 86,
+      "level": "subquery",
+      "question": "Cán bộ nào có số quyết định phê duyệt nhiều hơn số quyết định trung bình của tất cả cán bộ",
+      "gold_sql": "SELECT o.full_name FROM officers o WHERE (SELECT COUNT(*) FROM contract_approvals ca WHERE ca.officer_id = o.id) > (SELECT AVG(cnt) FROM (SELECT COUNT(*) AS cnt FROM contract_approvals GROUP BY officer_id) t)",
+      "model_sql": "SELECT o.id, o.full_name, COUNT(ca.id) AS so_quyet_dinh FROM officers o JOIN contract_approvals ca ON ca.officer_id = o.id GROUP BY o.id, o.full_name HAVING COUNT(ca.id) > (SELECT AVG(so_quyet_dinh) FROM (SELECT COUNT(ca.id) AS so_quyet_dinh FROM contract_approvals ca JOIN officers o ON ca.officer_id = o.id GROUP BY o.id) AS subquery)\nLIMIT 500",
+      "reason": "số cột khác: model 3 vs đáp án 1"
+    },
+    {
+      "id": 88,
+      "level": "subquery",
+      "question": "Quốc gia tiếp nhận nào chưa từng có quyết định phê duyệt bị từ chối",
+      "gold_sql": "SELECT DISTINCT sc.receiving_country FROM supply_contracts sc WHERE NOT EXISTS (SELECT 1 FROM contract_approvals ca WHERE ca.contract_id = sc.id AND ca.decision_type = 'REJECTED')",
+      "model_sql": "SELECT receiving_country FROM supply_contracts WHERE id NOT IN (SELECT contract_id FROM contract_approvals WHERE decision_type = 'REJECTED')\nLIMIT 500",
+      "reason": "số dòng khác: model 25 vs đáp án 18"
+    },
+    {
+      "id": 89,
+      "level": "subquery",
+      "question": "Hợp đồng cung ứng nào có ít nhất một đơn tuyển dụng yêu cầu tuyển cả nam và nữ",
+      "gold_sql": "SELECT sc.document_number FROM supply_contracts sc WHERE EXISTS (SELECT 1 FROM recruitment_orders ro WHERE ro.contract_id = sc.id AND ro.gender_requirement = 'Nam và nữ')",
+      "model_sql": "SELECT sc.id FROM supply_contracts sc JOIN recruitment_orders ro ON sc.id = ro.contract_id WHERE ro.gender_requirement = 'Nam và nữ'\nLIMIT 500",
+      "reason": "cùng kích thước nhưng giá trị khác"
+    },
+    {
+      "id": 90,
+      "level": "subquery",
+      "question": "Lao động nào có ngày sinh sớm hơn ngày sinh trung bình của toàn bộ lao động",
+      "gold_sql": "SELECT full_name, date_of_birth FROM workers WHERE date_of_birth < (SELECT to_timestamp(AVG(EXTRACT(EPOCH FROM date_of_birth)))::date FROM workers)",
+      "model_sql": null,
+      "reason": "Không tạo được câu truy vấn hợp lệ sau 3 lần thử. Thử diễn đạt lại câu hỏi cụ thể hơn."
+    }
+  ]
+}
